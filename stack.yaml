@@ -18,3 +18,19 @@ functions:
       DATABASE_URL: postgresql://postgres:postgres_pass@postgres.default.svc.cluster.local:5432/mydb
       ENCRYPTION_KEY: cxSCKh8NDwgloBrDyjQdg3on9wHZyQsAjmayA64X7Tg=
       SECRET_KEY: AziGo360NoScopeHeadShotTraversSmokeWhileBlindAuScoutCaPasseFirstTrySurVertigoEnRunBoost!
+  regenerate:
+    lang: python3-flask
+    handler: ./regenerate/
+    image: maximebdn/mspr-bloc-2-regenerate:latest
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres_pass@postgres.default.svc.cluster.local:5432/mydb
+      ENCRYPTION_KEY: cxSCKh8NDwgloBrDyjQdg3on9wHZyQsAjmayA64X7Tg=
+      SECRET_KEY: AziGo360NoScopeHeadShotTraversSmokeWhileBlindAuScoutCaPasseFirstTrySurVertigoEnRunBoost!
+  profile:
+    lang: python3-flask
+    handler: ./profile/
+    image: maximebdn/mspr-bloc-2-profile:latest
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres_pass@postgres.default.svc.cluster.local:5432/mydb
+      ENCRYPTION_KEY: cxSCKh8NDwgloBrDyjQdg3on9wHZyQsAjmayA64X7Tg=
+      SECRET_KEY: AziGo360NoScopeHeadShotTraversSmokeWhileBlindAuScoutCaPasseFirstTrySurVertigoEnRunBoost!

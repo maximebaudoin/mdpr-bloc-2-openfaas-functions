@@ -13,7 +13,12 @@ bcrypt = Bcrypt()
 def handle(req):
     data = json.loads(req)
 
-    username = data['username']
+    username = data.get('username')
+
+    if not username:
+        response = make_response(json.dumps({'message': 'Username is required'}), 400)
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
     try:
         conn = psycopg2.connect(os.environ["DATABASE_URL"])

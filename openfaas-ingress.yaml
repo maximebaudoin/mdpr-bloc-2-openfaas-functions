@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openfaas-gateway
+  namespace: openfaas
+  annotations:
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "http://localhost:3000"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, PUT, POST, DELETE, PATCH, OPTIONS"  # Méthodes autorisées
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization, X-Requested-With"  # En-têtes autorisés
+    nginx.ingress.kubernetes.io/cors-max-age: "3600"  # Durée maximale du cache CORS
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/hsts: "false"
+    nginx.ingress.kubernetes.io/hsts-max-age: "0"
+spec:
+  ingressClassName: nginx  # Cela s'assure que l'Ingress utilise NGINX
+  rules:
+  - host: "openfaas.mspr.antoninsimon.fr"  # Remplace par l'IP de ton LoadBalancer ou le domaine que tu utilises
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: gateway  # Le service OpenFaaS (gateway)
+              port:
+                number: 8080
+        # - path: /function/register
+        #   pathType: Prefix
+        #   backend:
+        #     service:
+        #       name: gateway  # Le service OpenFaaS (gateway)
+        #       port:
+        #         number: 8080
+        # - path: /function/login
+        #   pathType: Prefix
+        #   backend:
+        #     service:
+        #       name: gateway
+        #       port:
+        #         number: 8080

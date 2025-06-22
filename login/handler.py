@@ -35,22 +35,22 @@ def handle(req):
 
     print(f"Login attempt for {data['username']} with password: {data['password']}")
 
-    if not user or not bcrypt.check_password_hash(user.password, data['password']):
+    if not user or not bcrypt.check_password_hash(user[2], data['password']):
         response = make_response(json.dumps({"message": 'Invalid credentials'}), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    if user.mfa:
+    if user[3]:
         mfa_code = data.get('mfa_code')
         if not mfa_code:
             response = make_response(json.dumps({"message": 'MFA code required'}), 401)
             response.headers['Content-Type'] = 'application/json'
             return response
-        totp = pyotp.TOTP(user.mfa)
+        totp = pyotp.TOTP(user[3])
         try:
             fernet_key = os.environ["ENCRYPTION_KEY"].encode()
             fernet = Fernet(fernet_key)
-            decrypted_secret = fernet.decrypt(user.mfa.encode()).decode()
+            decrypted_secret = fernet.decrypt(user[3].encode()).decode()
             totp = pyotp.TOTP(decrypted_secret)
             if not totp.verify(mfa_code, valid_window=1):
                 response = make_response(json.dumps({"message": 'Invalid MFA code'}), 401)
@@ -71,7 +71,7 @@ def handle(req):
 
     token = jwt.encode(
         {
-            'sub': str(user.id),
+            'sub': str(user[0]),
             'iat': datetime.datetime.utcnow(),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
         },
@@ -83,8 +83,8 @@ def handle(req):
         token = token.decode('utf-8')
 
     six_months_ago = datetime.datetime.utcnow() - datetime.timedelta(days=180)
-    if user.gendate < six_months_ago:
-        user.expired = True
+    if user[4] < six_months_ago:
+        user[5] = True
         response = make_response(json.dumps({'token': token, 'status': "expired"}), 401)
         response.headers['Content-Type'] = 'application/json'
         return response

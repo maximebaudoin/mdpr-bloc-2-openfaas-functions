@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
+  namespace: openfaas  # Spécifier le namespace ici
 spec:
   accessModes:
     - ReadWriteOnce
@@ -14,6 +15,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: postgres-secret
+  namespace: openfaas  # Spécifier le namespace ici
 type: Opaque
 data:
   POSTGRES_PASSWORD: cG9zdGdyZXNfcGFzcw==  # "postgres_pass" base64
@@ -23,6 +25,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
+  namespace: openfaas  # Spécifier le namespace ici
 spec:
   replicas: 1
   selector:
@@ -39,10 +42,12 @@ spec:
           ports:
             - containerPort: 5432
           env:
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/db"
             - name: POSTGRES_DB
-              value: mydb
+              value: mspr02
             - name: POSTGRES_USER
-              value: postgres
+              value: cofrap
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -51,16 +56,22 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: postgres-storage
+            - mountPath: /docker-entrypoint-initdb.d
+              name: init-scripts  # Ajout du volume contenant le script d'initialisation
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
             claimName: postgres-pvc
+        - name: init-scripts  # Volume pour le script d'initialisation
+          configMap:
+            name: init-scripts
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: postgres
+  namespace: openfaas  # Spécifier le namespace ici
 spec:
   type: ClusterIP
   ports:

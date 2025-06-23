@@ -2,6 +2,7 @@ import json
 import os
 import datetime
 from flask import make_response
+from flask import request
 import jwt
 import pyotp
 from flask_bcrypt import Bcrypt
@@ -13,6 +14,7 @@ bcrypt = Bcrypt()
 def verify_token(headers):
     secret_key = os.getenv('SECRET_KEY')
     auth_header = headers.get('Authorization')
+    
     if not auth_header or not auth_header.startswith('Bearer '):
         return None, make_response(json.dumps({'message': 'Token is missing!'}), 401)
     token = auth_header.split(' ')[1]
@@ -30,7 +32,7 @@ def get_user_by_id(user_id):
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, username, gendate, expired FROM \"user\" WHERE id = %s", (user_id,)
+        "SELECT id, username, gendate, expired FROM \"users\" WHERE id = %s", (user_id,)
     )
     row = cur.fetchone()
     cur.close()
@@ -49,7 +51,7 @@ def handle(req):
     # On suppose ici que les headers sont passés dans req sous forme JSON avec 'headers' et 'body'
     try:
         event = json.loads(req)
-        headers = event.get('headers', {})
+        headers = request.headers
         body = event.get('body', '{}')
     except Exception:
         # fallback si req est juste le body

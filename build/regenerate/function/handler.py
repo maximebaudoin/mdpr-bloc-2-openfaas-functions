@@ -7,6 +7,7 @@ import qrcode
 import io
 from base64 import b64encode
 from flask import make_response
+from flask import request
 
 import pyotp
 from flask_bcrypt import Bcrypt
@@ -35,7 +36,7 @@ def get_user_by_id(user_id):
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, username, gendate, expired FROM \"user\" WHERE id = %s", (user_id,)
+        "SELECT id, username, gendate, expired FROM \"users\" WHERE id = %s", (user_id,)
     )
     row = cur.fetchone()
     cur.close()
@@ -58,7 +59,7 @@ def handle(req):
     # On suppose que les headers sont passés dans req sous forme JSON avec 'headers' et 'body'
     try:
         event = json.loads(req)
-        headers = event.get('headers', {})
+        headers = request.headers
         body = event.get('body', '{}')
     except Exception:
         headers = {}
@@ -107,7 +108,7 @@ def handle(req):
         conn = psycopg2.connect(os.environ["DATABASE_URL"])
         cursor = conn.cursor()
         cursor.execute("""
-            UPDATE "user"
+            UPDATE "users"
             SET password = %s, mfa = %s, gendate = %s, expired = %s
             WHERE id = %s
         """, (hashed_pw, encrypted_mfa, datetime.datetime.utcnow(), False, current_user.id))

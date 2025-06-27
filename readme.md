@@ -48,6 +48,13 @@ Laisser la commande suivante tourner pour accéder à l'interface web :
 **Nom d'utilisateur** : admin\
 **Mot de passe** : *Affiché plus haut avec une commande*
 
+## Création d'une fonction
+
+`faas-cli new NOM_DE_LA_FONCTION --lang LANGAGE`
+
+## Lancement en local pour dev et tester en direct
+
+`faas-cli local-run --port 8088 --watch`
 
 ## Déploiement des fonctions sur OpenFaas
 
